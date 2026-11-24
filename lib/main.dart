@@ -58,7 +58,7 @@ class _SplashScreenState extends State<SplashScreen>
     _fadeAnim = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
     _controller.forward();
 
-    Future.delayed(const Duration(milliseconds: 2200), () {
+    Future.delayed(const Duration(milliseconds: 2000), () {
       if (!mounted) return;
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => const StudioWebViewScreen()),
@@ -151,6 +151,10 @@ class _StudioWebViewScreenState extends State<StudioWebViewScreen> {
 
   static const String _appUrl = 'https://max-studio-pro.streamlit.app/';
 
+  // Real Chrome Mobile User-Agent so Google Sign-In never blocks WebView
+  static const String _chromeUserAgent =
+      'Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36';
+
   @override
   void initState() {
     super.initState();
@@ -223,11 +227,18 @@ class _StudioWebViewScreenState extends State<StudioWebViewScreen> {
               InAppWebView(
                 initialUrlRequest: URLRequest(url: WebUri(_appUrl)),
                 initialSettings: InAppWebViewSettings(
+                  userAgent: _chromeUserAgent,
                   javaScriptEnabled: true,
+                  javaScriptCanOpenWindowsAutomatically: true,
+                  supportMultipleWindows: true,
                   domStorageEnabled: true,
+                  databaseEnabled: true,
+                  thirdPartyCookiesEnabled: true,
+                  sharedCookiesEnabled: true,
                   allowFileAccess: true,
                   allowContentAccess: true,
                   useOnDownloadStart: true,
+                  useShouldOverrideUrlLoading: true,
                   mediaPlaybackRequiresUserGesture: false,
                   supportZoom: false,
                   transparentBackground: true,
@@ -246,6 +257,18 @@ class _StudioWebViewScreenState extends State<StudioWebViewScreen> {
                       }
                     },
                   );
+                },
+                shouldOverrideUrlLoading:
+                    (controller, navigationAction) async {
+                  return NavigationActionPolicy.ALLOW;
+                },
+                onCreateWindow: (controller, createWindowAction) async {
+                  final popupUrl = createWindowAction.request.url;
+                  if (popupUrl != null) {
+                    await controller.loadUrl(
+                        urlRequest: URLRequest(url: popupUrl));
+                  }
+                  return false;
                 },
                 onProgressChanged: (controller, progress) {
                   setState(() => _progress = progress / 100.0);
