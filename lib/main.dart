@@ -8,15 +8,15 @@ import 'package:path_provider/path_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-    statusBarColor: Color(0xFF050510),
-    statusBarIconBrightness: Brightness.light,
-    systemNavigationBarColor: Color(0xFF050510),
-    systemNavigationBarIconBrightness: Brightness.light,
-  ));
-  await SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-  ]);
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      statusBarColor: Color(0xFF050510),
+      statusBarIconBrightness: Brightness.light,
+      systemNavigationBarColor: Color(0xFF050510),
+      systemNavigationBarIconBrightness: Brightness.light,
+    ),
+  );
+  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   runApp(const MaxStudioProApp());
 }
 
@@ -58,7 +58,7 @@ class _SplashScreenState extends State<SplashScreen>
     _fadeAnim = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
     _controller.forward();
 
-    Future.delayed(const Duration(milliseconds: 2000), () {
+    Future.delayed(const Duration(milliseconds: 2200), () {
       if (!mounted) return;
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => const StudioWebViewScreen()),
@@ -75,62 +75,116 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF050510),
-      body: FadeTransition(
-        opacity: _fadeAnim,
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                width: 96,
-                height: 96,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFFA900ED), Color(0xFF442BFF)],
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFFA72CFF).withOpacity(0.6),
-                      blurRadius: 28,
-                      spreadRadius: 4,
-                    ),
-                  ],
-                ),
-                child: const Center(
-                  child: Icon(Icons.content_cut_rounded,
-                      size: 46, color: Colors.white),
-                ),
-              ),
-              const SizedBox(height: 22),
-              RichText(
-                text: const TextSpan(
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 1.0,
-                  ),
-                  children: [
-                    TextSpan(
-                        text: 'MAX STUDIO ',
-                        style: TextStyle(color: Colors.white)),
-                    TextSpan(
-                        text: 'PRO',
-                        style: TextStyle(color: Color(0xFFB33CFF))),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 6),
-              const Text(
-                'AI Stem Splitter',
-                style: TextStyle(
-                  fontSize: 15,
-                  color: Color(0xFF00D8FF),
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: RadialGradient(
+            center: Alignment(0, -0.15),
+            radius: 1.0,
+            colors: [
+              Color(0xFF1E0B42),
+              Color(0xFF090718),
+              Color(0xFF050510),
             ],
+          ),
+        ),
+        child: FadeTransition(
+          opacity: _fadeAnim,
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 118,
+                  height: 118,
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: const LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        Color(0xFF00F0FF),
+                        Color(0xFF8A2BE2),
+                        Color(0xFFFF2E93),
+                      ],
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF00F0FF).withOpacity(0.45),
+                        blurRadius: 26,
+                        spreadRadius: 3,
+                      ),
+                      BoxShadow(
+                        color: const Color(0xFFFF2E93).withOpacity(0.45),
+                        blurRadius: 32,
+                        spreadRadius: 4,
+                      ),
+                    ],
+                  ),
+                  child: ClipOval(
+                    child: Container(
+                      color: const Color(0xFF080616),
+                      child: Image.asset(
+                        'theme.png',
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return const Icon(
+                            Icons.graphic_eq_rounded,
+                            size: 54,
+                            color: Color(0xFF00F0FF),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                ShaderMask(
+                  shaderCallback: (bounds) => const LinearGradient(
+                    colors: [
+                      Color(0xFF00F0FF),
+                      Color(0xFF9D4EDD),
+                      Color(0xFFFF2E93),
+                    ],
+                  ).createShader(
+                    Rect.fromLTWH(0, 0, bounds.width, bounds.height),
+                  ),
+                  child: const Text(
+                    'MAX STUDIO PRO',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 30,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 1.6,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 5,
+                  ),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: const Color(0xFF00F0FF).withOpacity(0.5),
+                    ),
+                    color: const Color(0xFF00F0FF).withOpacity(0.1),
+                  ),
+                  child: const Text(
+                    'AI Stem Splitter',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Color(0xFF00F0FF),
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.8,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -162,17 +216,18 @@ class _StudioWebViewScreenState extends State<StudioWebViewScreen> {
   }
 
   Future<void> _requestPermissions() async {
-    await [
-      Permission.storage,
-      Permission.audio,
-    ].request();
+    await [Permission.storage, Permission.audio].request();
   }
 
   Future<void> _saveBase64File(
-      String base64Data, String filename, String mimeType) async {
+    String base64Data,
+    String filename,
+    String mimeType,
+  ) async {
     try {
-      final cleanBase64 =
-          base64Data.contains(',') ? base64Data.split(',').last : base64Data;
+      final cleanBase64 = base64Data.contains(',')
+          ? base64Data.split(',').last
+          : base64Data;
       final bytes = base64Decode(cleanBase64);
 
       Directory? targetDir;
@@ -203,9 +258,9 @@ class _StudioWebViewScreenState extends State<StudioWebViewScreen> {
       );
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Download failed: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Download failed: $e')));
     }
   }
 
@@ -258,15 +313,15 @@ class _StudioWebViewScreenState extends State<StudioWebViewScreen> {
                     },
                   );
                 },
-                shouldOverrideUrlLoading:
-                    (controller, navigationAction) async {
+                shouldOverrideUrlLoading: (controller, navigationAction) async {
                   return NavigationActionPolicy.ALLOW;
                 },
                 onCreateWindow: (controller, createWindowAction) async {
                   final popupUrl = createWindowAction.request.url;
                   if (popupUrl != null) {
                     await controller.loadUrl(
-                        urlRequest: URLRequest(url: popupUrl));
+                      urlRequest: URLRequest(url: popupUrl),
+                    );
                   }
                   return false;
                 },
@@ -278,7 +333,9 @@ class _StudioWebViewScreenState extends State<StudioWebViewScreen> {
                   final filename =
                       request.suggestedFilename ?? 'max_stem_track.mp3';
                   if (url.startsWith('blob:') || url.startsWith('data:')) {
-                    await controller.evaluateJavascript(source: '''
+                    await controller.evaluateJavascript(
+                      source:
+                          '''
                       (async function() {
                         const res = await fetch("$url");
                         const blob = await res.blob();
@@ -288,7 +345,8 @@ class _StudioWebViewScreenState extends State<StudioWebViewScreen> {
                         };
                         reader.readAsDataURL(blob);
                       })();
-                    ''');
+                    ''',
+                    );
                   }
                 },
               ),
@@ -297,8 +355,9 @@ class _StudioWebViewScreenState extends State<StudioWebViewScreen> {
                   value: _progress,
                   minHeight: 3,
                   backgroundColor: const Color(0xFF0B0920),
-                  valueColor:
-                      const AlwaysStoppedAnimation<Color>(Color(0xFFB33CFF)),
+                  valueColor: const AlwaysStoppedAnimation<Color>(
+                    Color(0xFFB33CFF),
+                  ),
                 ),
             ],
           ),
