@@ -199,8 +199,7 @@ class StudioWebViewScreen extends StatefulWidget {
   State<StudioWebViewScreen> createState() => _StudioWebViewScreenState();
 }
 
-class _StudioWebViewScreenState extends State<StudioWebViewScreen>
-    with WidgetsBindingObserver {
+class _StudioWebViewScreenState extends State<StudioWebViewScreen> {
   InAppWebViewController? _webController;
   double _progress = 0;
 
@@ -212,22 +211,7 @@ class _StudioWebViewScreenState extends State<StudioWebViewScreen>
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
     _requestPermissions();
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.paused ||
-        state == AppLifecycleState.inactive) {
-      CookieManager.instance().flush();
-    }
   }
 
   Future<void> _requestPermissions() async {
@@ -330,9 +314,6 @@ class _StudioWebViewScreenState extends State<StudioWebViewScreen>
                       }
                     },
                   );
-                },
-                onLoadStop: (controller, url) async {
-                  await CookieManager.instance().flush();
                 },
                 shouldOverrideUrlLoading: (controller, navigationAction) async {
                   return NavigationActionPolicy.ALLOW;
