@@ -199,20 +199,35 @@ class StudioWebViewScreen extends StatefulWidget {
   State<StudioWebViewScreen> createState() => _StudioWebViewScreenState();
 }
 
-class _StudioWebViewScreenState extends State<StudioWebViewScreen> {
+class _StudioWebViewScreenState extends State<StudioWebViewScreen>
+    with WidgetsBindingObserver {
   InAppWebViewController? _webController;
   double _progress = 0;
 
   static const String _appUrl = 'https://max-studio-pro.streamlit.app/';
 
-  // Real Chrome Mobile User-Agent so Google Sign-In never blocks WebView
   static const String _chromeUserAgent =
       'Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36';
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _requestPermissions();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.inactive) {
+      CookieManager.instance().flush();
+    }
   }
 
   Future<void> _requestPermissions() async {
@@ -288,6 +303,9 @@ class _StudioWebViewScreenState extends State<StudioWebViewScreen> {
                   supportMultipleWindows: true,
                   domStorageEnabled: true,
                   databaseEnabled: true,
+                  cacheEnabled: true,
+                  clearCache: false,
+                  incognito: false,
                   thirdPartyCookiesEnabled: true,
                   sharedCookiesEnabled: true,
                   allowFileAccess: true,
@@ -312,6 +330,9 @@ class _StudioWebViewScreenState extends State<StudioWebViewScreen> {
                       }
                     },
                   );
+                },
+                onLoadStop: (controller, url) async {
+                  await CookieManager.instance().flush();
                 },
                 shouldOverrideUrlLoading: (controller, navigationAction) async {
                   return NavigationActionPolicy.ALLOW;
