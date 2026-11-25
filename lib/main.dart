@@ -1,10 +1,12 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -61,7 +63,7 @@ class _SplashScreenState extends State<SplashScreen>
     Future.delayed(const Duration(milliseconds: 2200), () {
       if (!mounted) return;
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const StudioWebViewScreen()),
+        MaterialPageRoute(builder: (_) => const MaxStudioWebView()),
       );
     });
   }
@@ -75,116 +77,44 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: RadialGradient(
-            center: Alignment(0, -0.15),
-            radius: 1.0,
-            colors: [
-              Color(0xFF1E0B42),
-              Color(0xFF090718),
-              Color(0xFF050510),
+      backgroundColor: const Color(0xFF050510),
+      body: FadeTransition(
+        opacity: _fadeAnim,
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset(
+                'assets/logo.png',
+                width: 140,
+                height: 140,
+                fit: BoxFit.contain,
+                errorBuilder: (_, __, ___) => const Icon(
+                  Icons.graphic_eq,
+                  size: 84,
+                  color: Color(0xFF00E5FF),
+                ),
+              ),
+              const SizedBox(height: 18),
+              const Text(
+                'MAX Studio Pro',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                  letterSpacing: 0.6,
+                ),
+              ),
+              const SizedBox(height: 16),
+              const SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2.4,
+                  color: Color(0xFFB33CFF),
+                ),
+              ),
             ],
-          ),
-        ),
-        child: FadeTransition(
-          opacity: _fadeAnim,
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  width: 118,
-                  height: 118,
-                  padding: const EdgeInsets.all(4),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: const LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        Color(0xFF00F0FF),
-                        Color(0xFF8A2BE2),
-                        Color(0xFFFF2E93),
-                      ],
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFF00F0FF).withOpacity(0.45),
-                        blurRadius: 26,
-                        spreadRadius: 3,
-                      ),
-                      BoxShadow(
-                        color: const Color(0xFFFF2E93).withOpacity(0.45),
-                        blurRadius: 32,
-                        spreadRadius: 4,
-                      ),
-                    ],
-                  ),
-                  child: ClipOval(
-                    child: Container(
-                      color: const Color(0xFF080616),
-                      child: Image.asset(
-                        'theme.png',
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return const Icon(
-                            Icons.graphic_eq_rounded,
-                            size: 54,
-                            color: Color(0xFF00F0FF),
-                          );
-                        },
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 24),
-                ShaderMask(
-                  shaderCallback: (bounds) => const LinearGradient(
-                    colors: [
-                      Color(0xFF00F0FF),
-                      Color(0xFF9D4EDD),
-                      Color(0xFFFF2E93),
-                    ],
-                  ).createShader(
-                    Rect.fromLTWH(0, 0, bounds.width, bounds.height),
-                  ),
-                  child: const Text(
-                    'MAX STUDIO PRO',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 30,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 1.6,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 5,
-                  ),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                      color: const Color(0xFF00F0FF).withOpacity(0.5),
-                    ),
-                    color: const Color(0xFF00F0FF).withOpacity(0.1),
-                  ),
-                  child: const Text(
-                    'AI Stem Splitter',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Color(0xFF00F0FF),
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 0.8,
-                    ),
-                  ),
-                ),
-              ],
-            ),
           ),
         ),
       ),
@@ -192,21 +122,21 @@ class _SplashScreenState extends State<SplashScreen>
   }
 }
 
-class StudioWebViewScreen extends StatefulWidget {
-  const StudioWebViewScreen({super.key});
+class MaxStudioWebView extends StatefulWidget {
+  const MaxStudioWebView({super.key});
 
   @override
-  State<StudioWebViewScreen> createState() => _StudioWebViewScreenState();
+  State<MaxStudioWebView> createState() => _MaxStudioWebViewState();
 }
 
-class _StudioWebViewScreenState extends State<StudioWebViewScreen> {
-  InAppWebViewController? _webController;
-  double _progress = 0;
+class _MaxStudioWebViewState extends State<MaxStudioWebView> {
+  static const String _appUrl =
+      'https://max-studio-pro-xfuruhajrcfkwzwfrwlif9.streamlit.app/';
 
-  static const String _appUrl = 'https://max-studio-pro.streamlit.app/';
-
-  static const String _chromeUserAgent =
-      'Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36';
+  InAppWebViewController? _webViewController;
+  double _progress = 0.0;
+  bool _hasError = false;
+  String _errorMessage = '';
 
   @override
   void initState() {
@@ -215,150 +145,238 @@ class _StudioWebViewScreenState extends State<StudioWebViewScreen> {
   }
 
   Future<void> _requestPermissions() async {
-    await [Permission.storage, Permission.audio].request();
+    try {
+      await [
+        Permission.storage,
+        Permission.audio,
+        Permission.microphone,
+      ].request();
+    } catch (_) {}
+  }
+
+  Future<String> _getDownloadDirectoryPath() async {
+    if (Platform.isAndroid) {
+      final publicDownloads = Directory('/storage/emulated/0/Download');
+      if (await publicDownloads.exists()) {
+        return publicDownloads.path;
+      }
+    }
+    final dir = await getApplicationDocumentsDirectory();
+    return dir.path;
   }
 
   Future<void> _saveBase64File(
     String base64Data,
-    String filename,
-    String mimeType,
+    String fileName,
   ) async {
     try {
       final cleanBase64 = base64Data.contains(',')
           ? base64Data.split(',').last
           : base64Data;
       final bytes = base64Decode(cleanBase64);
-
-      Directory? targetDir;
-      if (Platform.isAndroid) {
-        targetDir = Directory('/storage/emulated/0/Download');
-        if (!await targetDir.exists()) {
-          targetDir = await getExternalStorageDirectory();
-        }
-      } else {
-        targetDir = await getApplicationDocumentsDirectory();
-      }
-
-      final safeName = filename.isEmpty
-          ? 'stem_${DateTime.now().millisecondsSinceEpoch}.mp3'
-          : filename;
-      final file = File('${targetDir!.path}/$safeName');
+      final folderPath = await _getDownloadDirectoryPath();
+      final safeName = fileName.trim().isEmpty
+          ? 'max_studio_export_${DateTime.now().millisecondsSinceEpoch}.bin'
+          : fileName.trim();
+      final file = File('$folderPath/$safeName');
       await file.writeAsBytes(bytes);
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          backgroundColor: const Color(0xFF1A0E38),
-          content: Text(
-            'Saved to Downloads: $safeName',
-            style: const TextStyle(color: Colors.white),
-          ),
+          content: Text('Saved: $safeName'),
+          backgroundColor: const Color(0xFF1A1438),
         ),
       );
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Download failed: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Download failed: $e'),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
     }
+  }
+
+  void _registerBlobDownloadHandler(InAppWebViewController controller) {
+    controller.addJavaScriptHandler(
+      handlerName: 'blobDownloader',
+      callback: (args) async {
+        if (args.isNotEmpty) {
+          final raw = args[0].toString();
+          final fileName = args.length > 1 && args[1] != null
+              ? args[1].toString()
+              : 'download.bin';
+          await _saveBase64File(raw, fileName);
+        }
+        return {'status': 'ok'};
+      },
+    );
+  }
+
+  Future<bool> _onWillPop() async {
+    if (_webViewController != null && await _webViewController!.canGoBack()) {
+      await _webViewController!.goBack();
+      return false;
+    }
+    return true;
   }
 
   @override
   Widget build(BuildContext context) {
-    return PopScope(
-      canPop: false,
-      onPopInvokedWithResult: (didPop, result) async {
-        if (didPop) return;
-        if (_webController != null && await _webController!.canGoBack()) {
-          await _webController!.goBack();
-        }
-      },
+    return WillPopScope(
+      onWillPop: _onWillPop,
       child: Scaffold(
         backgroundColor: const Color(0xFF050510),
         body: SafeArea(
           child: Stack(
             children: [
-              InAppWebView(
-                initialUrlRequest: URLRequest(url: WebUri(_appUrl)),
-                initialSettings: InAppWebViewSettings(
-                  userAgent: _chromeUserAgent,
-                  javaScriptEnabled: true,
-                  javaScriptCanOpenWindowsAutomatically: true,
-                  supportMultipleWindows: true,
-                  domStorageEnabled: true,
-                  databaseEnabled: true,
-                  cacheEnabled: true,
-                  clearCache: false,
-                  incognito: false,
-                  thirdPartyCookiesEnabled: true,
-                  sharedCookiesEnabled: true,
-                  allowFileAccess: true,
-                  allowContentAccess: true,
-                  useOnDownloadStart: true,
-                  useShouldOverrideUrlLoading: true,
-                  mediaPlaybackRequiresUserGesture: false,
-                  supportZoom: false,
-                  transparentBackground: true,
-                ),
-                onWebViewCreated: (controller) {
-                  _webController = controller;
-                  controller.addJavaScriptHandler(
-                    handlerName: 'blobDownloader',
-                    callback: (args) async {
-                      if (args.length >= 2) {
-                        await _saveBase64File(
-                          args[0].toString(),
-                          args[1].toString(),
-                          args.length > 2 ? args[2].toString() : 'audio/mpeg',
-                        );
-                      }
-                    },
-                  );
-                },
-                shouldOverrideUrlLoading: (controller, navigationAction) async {
-                  return NavigationActionPolicy.ALLOW;
-                },
-                onCreateWindow: (controller, createWindowAction) async {
-                  final popupUrl = createWindowAction.request.url;
-                  if (popupUrl != null) {
-                    await controller.loadUrl(
-                      urlRequest: URLRequest(url: popupUrl),
-                    );
-                  }
-                  return false;
-                },
-                onProgressChanged: (controller, progress) {
-                  setState(() => _progress = progress / 100.0);
-                },
-                onDownloadStartRequest: (controller, request) async {
-                  final url = request.url.toString();
-                  final filename =
-                      request.suggestedFilename ?? 'max_stem_track.mp3';
-                  if (url.startsWith('blob:') || url.startsWith('data:')) {
-                    await controller.evaluateJavascript(
-                      source:
-                          '''
-                      (async function() {
-                        const res = await fetch("$url");
-                        const blob = await res.blob();
-                        const reader = new FileReader();
-                        reader.onloadend = function() {
-                          window.flutter_inappwebview.callHandler('blobDownloader', reader.result, "$filename", blob.type);
+              if (!_hasError)
+                InAppWebView(
+                  initialUrlRequest: URLRequest(url: WebUri(_appUrl)),
+                  initialSettings: InAppWebViewSettings(
+                    javaScriptEnabled: true,
+                    domStorageEnabled: true,
+                    databaseEnabled: true,
+                    thirdPartyCookiesEnabled: true,
+                    supportMultipleWindows: true,
+                    javaScriptCanOpenWindowsAutomatically: true,
+                    mediaPlaybackRequiresUserGesture: false,
+                    allowFileAccess: true,
+                    allowContentAccess: true,
+                    useHybridComposition: true,
+                    transparentBackground: true,
+                  ),
+                  onWebViewCreated: (controller) {
+                    _webViewController = controller;
+                    _registerBlobDownloadHandler(controller);
+                  },
+                  onLoadStart: (controller, url) {
+                    setState(() {
+                      _hasError = false;
+                      _errorMessage = '';
+                    });
+                  },
+                  onProgressChanged: (controller, progress) {
+                    setState(() {
+                      _progress = progress / 100.0;
+                    });
+                  },
+                  onLoadStop: (controller, url) async {
+                    setState(() {
+                      _progress = 1.0;
+                    });
+                    await controller.evaluateJavascript(source: '''
+                      (function() {
+                        if (window.__maxBlobHookInstalled) return;
+                        window.__maxBlobHookInstalled = true;
+                        const origClick = HTMLAnchorElement.prototype.click;
+                        HTMLAnchorElement.prototype.click = function() {
+                          const href = this.getAttribute('href') || '';
+                          const fname = this.getAttribute('download') || 'audio_export';
+                          if (href.startsWith('blob:') && window.flutter_inappwebview) {
+                            fetch(href)
+                              .then(r => r.blob())
+                              .then(blob => new Promise((resolve) => {
+                                const reader = new FileReader();
+                                reader.onloadend = () => resolve(reader.result);
+                                reader.readAsDataURL(blob);
+                              }))
+                              .then(dataUrl => {
+                                window.flutter_inappwebview.callHandler('blobDownloader', dataUrl, fname);
+                              })
+                              .catch(() => origClick.call(this));
+                            return;
+                          }
+                          return origClick.call(this);
                         };
-                        reader.readAsDataURL(blob);
                       })();
-                    ''',
-                    );
-                  }
-                },
-              ),
-              if (_progress < 1.0)
-                LinearProgressIndicator(
-                  value: _progress,
-                  minHeight: 3,
-                  backgroundColor: const Color(0xFF0B0920),
-                  valueColor: const AlwaysStoppedAnimation<Color>(
-                    Color(0xFFB33CFF),
+                    ''');
+                  },
+                  onCreateWindow: (controller, createWindowAction) async {
+                    final targetUrl = createWindowAction.request.url;
+                    if (targetUrl != null) {
+                      await controller.loadUrl(
+                        urlRequest: URLRequest(url: targetUrl),
+                      );
+                    }
+                    return true;
+                  },
+                  onReceivedError: (controller, request, error) {
+                    if (request.isForMainFrame ?? true) {
+                      setState(() {
+                        _hasError = true;
+                        _errorMessage = error.description;
+                      });
+                    }
+                  },
+                  onDownloadStartRequest: (controller, downloadStartRequest) async {
+                    final url = downloadStartRequest.url.toString();
+                    final suggestedName =
+                        downloadStartRequest.suggestedFilename ?? 'stem_output';
+                    if (url.startsWith('data:')) {
+                      await _saveBase64File(url, suggestedName);
+                    }
+                  },
+                ),
+              if (_progress < 1.0 && !_hasError)
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  child: LinearProgressIndicator(
+                    value: _progress > 0 ? _progress : null,
+                    minHeight: 3,
+                    backgroundColor: Colors.transparent,
+                    color: const Color(0xFF00E5FF),
+                  ),
+                ),
+              if (_hasError)
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.wifi_off,
+                          size: 52,
+                          color: Color(0xFF00E5FF),
+                        ),
+                        const SizedBox(height: 12),
+                        const Text(
+                          'Connection Error',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          _errorMessage.isEmpty
+                              ? 'Server harh chhung emaw internet check rawh.'
+                              : _errorMessage,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(color: Colors.white70),
+                        ),
+                        const SizedBox(height: 18),
+                        ElevatedButton.icon(
+                          onPressed: () {
+                            setState(() {
+                              _hasError = false;
+                              _progress = 0.0;
+                            });
+                            _webViewController?.loadUrl(
+                              urlRequest: URLRequest(url: WebUri(_appUrl)),
+                            );
+                          },
+                          icon: const Icon(Icons.refresh),
+                          label: const Text('Retry'),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
             ],
