@@ -19,20 +19,42 @@ st.set_page_config(
 
 
 # ==========================================
-# GOOGLE OAUTH SETTINGS (Safe for GitHub)
+# GOOGLE OAUTH SETTINGS (Localhost & Cloud Auto-Detect)
 # ==========================================
 def get_secret(key: str, default: str = "") -> str:
   try:
     if key in st.secrets:
-      return str(st.secrets[key])
+      return str(st.secrets[key]).strip()
   except Exception:
     pass
-  return os.environ.get(key, default)
+  return os.environ.get(key, default).strip()
+
+
+def resolve_redirect_uri() -> str:
+  """Localhost a nih chuan http://localhost:<port>, Cloud a nih chuan live URL a pe chhuak."""
+  try:
+    headers = getattr(st.context, "headers", {}) or {}
+    host = headers.get("Host") or headers.get("host") or ""
+    if host:
+      if host.startswith("localhost") or host.startswith("127.0.0.1"):
+        return f"http://{host}"
+      return f"https://{host}"
+  except Exception:
+    pass
+
+  configured = get_secret("REDIRECT_URI", "") or get_secret(
+      "GOOGLE_REDIRECT_URI", ""
+  )
+  if configured:
+    return configured.rstrip("/")
+
+  port = st.get_option("server.port") or 8504
+  return f"http://localhost:{port}"
 
 
 GOOGLE_CLIENT_ID = get_secret("GOOGLE_CLIENT_ID", "")
 GOOGLE_CLIENT_SECRET = get_secret("GOOGLE_CLIENT_SECRET", "")
-REDIRECT_URI = get_secret("REDIRECT_URI", "http://localhost:8504")
+REDIRECT_URI = resolve_redirect_uri()
 
 AUTHORIZE_ENDPOINT = "https://accounts.google.com/o/oauth2/v2/auth"
 TOKEN_ENDPOINT = "https://oauth2.googleapis.com/token"
@@ -420,8 +442,7 @@ elif st.session_state["show_google_auth"]:
   with col2:
     if not GOOGLE_CLIENT_ID or not GOOGLE_CLIENT_SECRET:
       st.warning(
-          "Streamlit Cloud App Settings > Secrets-ah GOOGLE_CLIENT_ID,"
-          " GOOGLE_CLIENT_SECRET, leh REDIRECT_URI dah lut rawh."
+          "Secrets-ah GOOGLE_CLIENT_ID leh GOOGLE_CLIENT_SECRET dah lut rawh."
       )
     else:
       params = urlencode({
@@ -574,5 +595,3 @@ else:
         st.rerun()
 
       st.markdown("</div>", unsafe_allow_html=True)
-
-
